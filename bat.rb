@@ -17,7 +17,7 @@ class Game < BasicGame
     @bg.draw(0, 0)
     @ball.draw(@ball_x, @ball_y)
     @paddle.draw(@paddle_x, 400)
-    graphics.draw_string('RubyPong (ESC to exit)', 8, container.height - 30)
+    graphics.draw_string('(ESC to exit)', 8, container.height - 30)
   end
 
   def init(container)
@@ -28,7 +28,10 @@ class Game < BasicGame
     @ball_x = 200
     @ball_y = 200
     @ball_angle = 45
+    game_setup(container)
+  end
 
+  def game_setup(container)
     if @ball_y > container.height
       @paddle_x = 200
       @ball_x = 200
@@ -40,6 +43,7 @@ class Game < BasicGame
   def update(container, delta)
     input = container.get_input
     container.exit if input.is_key_down(Input::KEY_ESCAPE)
+    game_setup(container)
 
     #paddle movement
     if input.is_key_down(Input::KEY_LEFT) && @paddle_x > 0
@@ -50,21 +54,13 @@ class Game < BasicGame
       @paddle_x += 0.9 * delta
     end
 
-    #ball speed
+    #ball movement
     @ball_x += 0.3 * delta * Math.cos(@ball_angle * Math::PI / 180)
-    @ball_y -= 0.3 * delta * Math.sin(@ball_angle * Math::PI / 180)
+    @ball_y -= 0.5 * delta * Math.sin(@ball_angle * Math::PI / 180)
 
     #ball to wall collision
     if (@ball_x > container.width - @ball.width) || (@ball_y < 0) || (@ball_x < 0)
       @ball_angle = (@ball_angle + 90) % 360
-    end
-
-    #reset game
-    if @ball_y > container.height
-      @paddle_x = 200
-      @ball_x = 200
-      @ball_y = 200
-      @ball_angle = 45
     end
 
     #paddle to ball collision
@@ -72,9 +68,6 @@ class Game < BasicGame
       @ball_angle = (@ball_angle + 90) % 360
     end
   end
-
-
-
 end
 
 app = AppGameContainer.new(Game.new('RubyPong'))
